@@ -1,0 +1,142 @@
+@import "../generated/leptonic/leptonic-themes";
+
+[data-theme="light"] {
+    --brand-color: #e66956;
+}
+
+    :root {
+            --primary-text-color: #343a40;
+            --primary-text-color-hover: black;
+            --primary-background-color: rgb(218, 228, 241);
+            --primary-background-color-hover: rgb(222, 232, 245);
+        }
+
+        .weblumapp {
+            --button-border-size: 0;
+            --button-filled-primary-background-color: var(--primary-background-color);
+            --button-filled-primary-background-color-hover: var(--primary-background-color-hover);
+            --button-filled-primary-text-color: var(--primary-text-color);
+            --button-filled-primary-text-color-hover: var(--primary-text-color-hover);
+            --button-filled-primary-border-color: var(--primary-text-color);
+            --button-filled-primary-border-color-hover: var(--primary-text-color-hover);
+
+            --button-flat-primary-background-color: var(--primary-background-color);
+            --button-flat-primary-background-color-hover: var(--primary-background-color-hover);
+            --button-flat-primary-text-color: var(--primary-text-color);
+            --button-flat-primary-text-color-hover: var(--primary-text-color-hover);
+            --button-flat-primary-border-color: var(--primary-text-color);
+            --button-flat-primary-border-color-hover: var(--primary-text-color-hover);
+        }
+
+        leptonic-modal {
+            --button-filled-primary-background-color: var(--primary-background-color);
+            --button-filled-primary-background-color-hover: var(--primary-background-color-hover);
+            --button-filled-primary-text-color: var(--primary-text-color);
+            --button-filled-primary-text-color-hover: var(--primary-text-color-hover);
+            --button-filled-primary-border-color: var(--primary-text-color);
+            --button-filled-primary-border-color-hover: var(--primary-text-color-hover);
+        }
+            
+
+.banner {
+    color: var(--primary-text-color);
+    text-align: center;
+}
+
+a {
+    text-align: center;
+}
+
+@keyframes spin {
+    0% {
+        transform: scale(0.1);
+    }
+    10% {
+        transform: scale(0.1);
+    }
+    20% {
+        transform: scale(0.2);
+    }
+    30% {
+        transform: scale(0.3);
+    }
+    40% {
+        transform: scale(0.4);
+    }
+    50% {
+        transform: scale(0.5);
+    }
+    60% {
+        transform: scale(0.6);
+    }
+    70% {
+        transform: scale(0.7);
+    }
+    80% {
+        transform: scale(0.8);
+    }
+    90% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.iconButtonText {
+    font-size: .5em;
+    line-height: 1.1em;
+    max-width: 27px;
+    width: 27px;
+    max-height: 20px;
+    height: 20px;
+}
+
+.imageDisplay {
+    min-width: 850px;
+    display: flex;
+    flex-direction: column;
+}
+
+.imageButtonsContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 50px;
+    padding: 10px 0 10px 0;
+}
+
+.listContainer {
+    display: flex;
+    flex-direction: row;
+}
+
+.imageList {
+    height: 60em;
+    width: 25em;
+    overflow-y: scroll;
+}
+
+.imageDate {
+    font-size: 12px;
+    color: gray
+}
+
+.link {
+    color: #007bff;
+    cursor: pointer;
+    padding: 0 1em 0 1em;
+}
+        
+.link:hover {
+    background-color: #e7e8e9;
+}
+            
+.selected {
+    margin-left: 10px;
+    background-color: #e7e8e9;
+}
+            
+.selected:hover {
+    background-color: #e7e8e9;
+}
