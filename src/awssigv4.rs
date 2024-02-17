@@ -14,10 +14,10 @@ use url::{Url};
 use gloo_net::http::Headers;
 use js_sys::Date;
 
-pub const USER_AGENT: &str = "wasm";
-pub static ALGORITHM: &str = "AWS4-HMAC-SHA256";
-static AWS4_REQUEST: &str = "aws4_request";
-static SIGNED_HEADERS: &str = "content-type;host;x-amz-content-sha256;x-amz-date;x-amz-user-agent";
+const USER_AGENT: &str = "wasm";
+static _ALGORITHM: &str = "AWS4-HMAC-SHA256";
+static _AWS4_REQUEST: &str = "aws4_request";
+static _SIGNED_HEADERS: &str = "content-type;host;x-amz-content-sha256;x-amz-date;x-amz-user-agent";
 
 use time::{
     format_description::well_known::Iso8601,
@@ -53,13 +53,13 @@ pub fn amzdate(date: &OffsetDateTime) -> String {
         .unwrap()
 }
 
-fn sign(key: &[u8], message: String) -> Vec<u8> {
+fn _sign(key: &[u8], message: String) -> Vec<u8> {
     let mut mac = Hmac::<Sha256>::new_from_slice(key).expect("HMAC can take key of any size");
     mac.update(&message.into_bytes());
     mac.finalize().into_bytes()[..].to_vec()
 }
 
-fn datestamp(date: &OffsetDateTime) -> String {
+fn _datestamp(date: &OffsetDateTime) -> String {
     date
         .to_offset(offset!(UTC))
         .format(format_description!("[year][month][day]"))
@@ -71,29 +71,29 @@ fn datestamp(date: &OffsetDateTime) -> String {
 //DateRegionServiceKey = HMAC-SHA256(<DateRegionKey>, "<aws-service>")
 //SigningKey           = HMAC-SHA256(<DateRegionServiceKey>, "aws4_request")
 
-fn signature_key(
+fn _signature_key(
     secret_access_key: &SecretString,
     region: &str,
     date: &OffsetDateTime,
     service: &str,
 ) -> Vec<u8> {
-    let k_date = sign(
+    let k_date = _sign(
         &format!("AWS4{}", secret_access_key.expose_secret()).into_bytes(),
-        datestamp(date),
+        _datestamp(date),
     );
-    let k_region = sign(k_date.as_slice(), region.to_string());
-    let k_service = sign(k_region.as_slice(), service.to_string());
-    sign(k_service.as_slice(), AWS4_REQUEST.to_string())
+    let k_region = _sign(k_date.as_slice(), region.to_string());
+    let k_service = _sign(k_region.as_slice(), service.to_string());
+    _sign(k_service.as_slice(), _AWS4_REQUEST.to_string())
 }
 
 
-pub fn encoded_hash_from_string(message: impl ToString) -> String {
+pub fn _encoded_hash_from_string(message: impl ToString) -> String {
     let mut hasher = Sha256::new();
     hasher.update(message.to_string().into_bytes());
     hex::encode(hasher.finalize())
 }
 
-pub fn encoded_hash_from_byte_vec(message: Vec<u8>) -> String {
+pub fn _encoded_hash_from_byte_vec(message: Vec<u8>) -> String {
     let mut hasher = Sha256::new();
     hasher.update(message);
     hex::encode(hasher.finalize())
@@ -105,13 +105,13 @@ pub fn _hash_bytes_to_hexstring(message: &Bytes) -> String {
     hex::encode(hasher.finalize())
 }
 
-fn credential_scope(region: &str, date: &OffsetDateTime, service: &str) -> String {
+fn _credential_scope(region: &str, date: &OffsetDateTime, service: &str) -> String {
     format!(
         "{}/{}/{}/{}",
-        datestamp(date),
+        _datestamp(date),
         region,
         service,
-        AWS4_REQUEST
+        _AWS4_REQUEST
     )
 }
 
@@ -134,8 +134,8 @@ async fn _get_payload_hash(request: &Request) -> Option<String> {
 //<SignedHeaders>\n
 //<HashedPayload>
 
-fn canonicalize_headers(request: Request) -> Option<String> {
-    let allowed_headers_keys: Vec<&str> = SIGNED_HEADERS.rsplit(';').collect();
+fn _canonicalize_headers(request: Request) -> Option<String> {
+    let allowed_headers_keys: Vec<&str> = _SIGNED_HEADERS.rsplit(';').collect();
     let mut values_and_keys: Vec<String> = vec![];
     for entry in request.headers().entries() {
         if allowed_headers_keys.contains(&entry.0.to_lowercase().trim()) {
@@ -148,7 +148,7 @@ fn canonicalize_headers(request: Request) -> Option<String> {
     Some(format!("{}{}{}", values_and_keys.join("\n"), '\n', '\n'))
 }
 
-pub async fn canonicalize_request(request: Request) -> Option<String> {
+pub async fn _canonicalize_request(request: Request) -> Option<String> {
     let payload_hash = "UNSIGNED-PAYLOAD";
     //let payload_hash = get_payload_hash(&request).await.expect("payload hash expected");
     let http_method = format!("{}{}", request.method().as_str(), '\n');
@@ -157,8 +157,8 @@ pub async fn canonicalize_request(request: Request) -> Option<String> {
     log::info!("{}", canonical_uri);
     let query_string = encode(parse_result.query().unwrap_or(""));
     let canonical_query_string = format!("{}{}", query_string, '\n');
-    let canonical_headers = canonicalize_headers(request).expect("canonical headers expected");
-    let signed_headers = format!("{}{}", SIGNED_HEADERS.to_lowercase(), '\n');
+    let canonical_headers = _canonicalize_headers(request).expect("canonical headers expected");
+    let signed_headers = format!("{}{}", _SIGNED_HEADERS.to_lowercase(), '\n');
     let result = Some(format!("{}{}{}{}{}{}", http_method, canonical_uri, canonical_query_string, canonical_headers, signed_headers, payload_hash));
     log::info!("canonicalized request: {}", &result.clone().unwrap());
     result
@@ -175,7 +175,7 @@ fn date_time_from_js_sys_date(js_sys_date: Date) -> OffsetDateTime {
     date_from_epoch((js_sys_date.get_time()/1000.0) as i64)
 }
 
-pub async fn get_auth_header (
+async fn _get_auth_header (
     secret_access_key: &SecretString,
     access_key: String,
     region: &str,
@@ -184,15 +184,15 @@ pub async fn get_auth_header (
 ) -> String {
 
     let date = date_from_epoch(epoch);
-    let credential_scope = credential_scope(region, &date, "s3");
-    let canonical_request = canonicalize_request(request).await.expect("canonicalized request expected");
+    let credential_scope = _credential_scope(region, &date, "s3");
+    let canonical_request = _canonicalize_request(request).await.expect("canonicalized request expected");
     log::info!("Canonical request:");
     log::info!("{}", canonical_request);
-    let encoded_canonical_request = encoded_hash_from_string(canonical_request);
+    let encoded_canonical_request = _encoded_hash_from_string(canonical_request);
 
     let string_to_sign = format!(
         "{}\n{}\n{}\n{}",
-        ALGORITHM,
+        _ALGORITHM,
         amzdate(&date),
         credential_scope,
         encoded_canonical_request,
@@ -201,8 +201,8 @@ pub async fn get_auth_header (
     log::info!("string to sign:");
     log::info!("{}", &string_to_sign);
 
-    let key = signature_key(secret_access_key, region, &date, "s3");
-    let request_signature = hex::encode(sign(key.as_slice(), string_to_sign));
+    let key = _signature_key(secret_access_key, region, &date, "s3");
+    let request_signature = hex::encode(_sign(key.as_slice(), string_to_sign));
     //let request_signature = encoded_hash_from_byte_vec(sign(key.as_slice(), string_to_sign));
     let formatted_date = amzdate(&date);
     let (ymd, _) = formatted_date.split_at(8);
@@ -212,7 +212,7 @@ pub async fn get_auth_header (
         access_key,
         ymd,
         region,
-        SIGNED_HEADERS, 
+        _SIGNED_HEADERS, 
         request_signature,
     )
 }
@@ -221,29 +221,24 @@ pub async fn get_auth_header (
 mod tests {
     use secrecy::SecretString;
     use time::macros::datetime;
-    use crate::awssigv4::{amzdate, signature_key, sign};
+    use crate::awssigv4::{amzdate, _signature_key, _sign};
     use std::str::FromStr;
-    use gloo_net::http::RequestBuilder;
-    use gloo_net::http::Method;
-    use js_sys::Date;
-
-    use crate::awssigv4::generate_headers;
-    use crate::awssigv4::credential_scope;
+    use crate::awssigv4::_credential_scope;
     use crate::awssigv4::date_from_epoch;
-    use crate::awssigv4::datestamp;
-    use crate::awssigv4::encoded_hash_from_string;
+    use crate::awssigv4::_datestamp;
+    use crate::awssigv4::_encoded_hash_from_string;
 
     #[test]
     fn test_datestamp() {
         let date = date_from_epoch(1697123242);
-        let result = datestamp(&date);
+        let result = _datestamp(&date);
         assert_eq!(result, "20231012");
     }
 
     #[test]
     fn test_credential_scope() {
         let date = date_from_epoch(1697123242);
-        let credential_scope = credential_scope("us-west-2", &date, "s3");
+        let credential_scope = _credential_scope("us-west-2", &date, "s3");
         assert_eq!(credential_scope, "20231012/us-west-2/s3/aws4_request");
     }
 
@@ -257,10 +252,10 @@ mod tests {
 
     #[test]
     fn test_signature() {
-        let secret_string = SecretString::from_str("wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY").expect("secret expected");
-        let region = "us-west-2";
-        let service = "s3";
-        let payload = "payloadstring";
+        let _secret_string = SecretString::from_str("wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY").expect("secret expected");
+        let _region = "us-west-2";
+        let _service = "s3";
+        let _payload = "payloadstring";
         //let result = signature(&secret_string, region, service, payload, 0);
         //let expected = "ce912658a7f832819fcec0acd47dd1bd343e34105832192024e9432c7887091a";
         //assert_eq!(result, expected);
@@ -277,10 +272,10 @@ f536975d06c0309214f805bb90ccff089219ecd68b2577efef23edd43b7e1a59"#;
         let secret_access_key = "wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY".parse().unwrap();
         let sign_time = datetime!(2015-08-30 12:36:00 UTC).into();
 
-        let key = signature_key(&secret_access_key, "us-east-1", &sign_time, "iam");
+        let key = _signature_key(&secret_access_key, "us-east-1", &sign_time, "iam");
 
         let expected = "5d672d79c15b13162d9279b0855cfba6789a8edb4c82c400e06b5924a6f2b5d7";
-        let actual = hex::encode(sign(key.as_slice(), message.to_string()));
+        let actual = hex::encode(_sign(key.as_slice(), message.to_string()));
 
         assert_eq!(actual, expected);
     }
@@ -288,7 +283,7 @@ f536975d06c0309214f805bb90ccff089219ecd68b2577efef23edd43b7e1a59"#;
     #[test]
     fn test_empty_hash() {
         let expected = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-        let actual = encoded_hash_from_string("");
+        let actual = _encoded_hash_from_string("");
         assert_eq!(actual, expected);
     }
 }

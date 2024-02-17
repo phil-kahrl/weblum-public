@@ -22,7 +22,7 @@ url = "1.6.0"
 
 img-parts = "0.3.0"
 
-time = {features = ["formatting", "macros", "serde", "parsing"] }
+time = {version = "0.3.34", features = ["formatting", "macros", "serde", "parsing"] }
 secrecy = { version = "0.8.0", features = ["serde"] }
 hmac = "0.12.1"
 sha2 = "0.10.7"

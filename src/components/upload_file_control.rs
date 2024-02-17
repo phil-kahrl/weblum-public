@@ -1,7 +1,6 @@
 use leptos::*;
 use leptonic::prelude::*;
 use crate::local_config::get_current_config;
-use leptos_icons::AiIcon::AiCloudUploadOutlined;
 use crate::ConfigManager;
 
 #[component]

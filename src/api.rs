@@ -3,9 +3,8 @@ use leptos::*;
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
 
-use gloo_net::http::{Request, RequestBuilder, Method};
+use gloo_net::http::{Request};
 use js_sys::{Date, Uint8Array};
-use secrecy::SecretString;
 
 use crate::SiteSettings;
 use wasm_bindgen::JsValue;
@@ -21,7 +20,6 @@ use crate::local_config::get_current_config;
 use crate::awssigv4::generate_headers;
 use crate::upload_to_s3;
 use crate::delete_object;
-use crate::awssigv4::get_auth_header;
 use crate::get_image;
 use crate::local_config;
 
@@ -184,43 +182,6 @@ pub async fn update_comment(comment_text: String, e_tag: String, set_error: RwSi
     let converted = result.as_string().expect("result exists");
     if converted == "error" {
         set_error.set(Some("error on update comment".to_string()));
-    }
-}
-
-pub async fn upload_image(file: JsValue, filename: String) -> Result<String> {
-    let aws_credentials = aws_credentials();
-    let now = Date::new_0();
-    let headers = generate_headers(&now);
-
-    headers.append("Host", format!("{}.s3.amazonaws.com", bucket_name()).as_str());
-    let url = format!("http://{}.s3.amazonaws.com/images/{}", bucket_name(), filename);
-
-    let aws_creds = aws_credentials.expect("credential expected");
-
-    let secret_str = SecretString::from(aws_creds.secret_key);
-    let request = RequestBuilder::new(&url).headers(headers).method(Method::PUT).body(&file).expect("request expected");
-        
-    let date_epoch = (Date::new_0().get_time()/1000.0).round() as i64;
-    let auth = get_auth_header(&secret_str, aws_creds.access_key, &region(), request, date_epoch).await;
-
-    let new_headers = generate_headers(&now);
-    new_headers.append("Authorization", &auth);
-    new_headers.append("host", format!("{}.s3.amazonaws.com", bucket_name()).as_str());
-    let _u8arr = Uint8Array::new_with_length(10);
-    match RequestBuilder::new(&url).method(Method::PUT).headers(new_headers).body(&file) {
-        Ok(r) => {
-            return match r.send().await {
-                Ok(response) => {
-                    if response.ok() {
-                        Ok("success".to_string())
-                    } else {
-                        Err(UploadError("".to_string()))
-                    }
-                },
-                Err(_) => Err(UploadError("".to_string())),
-            }
-        },
-        Err(_) => Err(UploadError("".to_string())),
     }
 }
 

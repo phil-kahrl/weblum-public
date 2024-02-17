@@ -460,7 +460,6 @@ pub fn App() -> impl IntoView {
 
 #[cfg(test)]
 mod tests {
-    use crate::decode_string;
     #[test]
     fn decode_base64() {
 
