@@ -188,9 +188,7 @@ pub fn remove_site(id: String) -> Result<(), ConfigError> {
 }
 
 pub fn get_current_config() -> Result<SiteConfig, ConfigError> {
-    log::info!("get current config");
     let current_site = LocalStorage::get::<String>(CURRENT_SITE)?;
-    log::info!("current site {}", current_site);
     let sites = get_sites()?;
     if sites.len() > 0 {
         for site in &sites {

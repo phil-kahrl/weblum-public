@@ -28,7 +28,11 @@ Run locally:
 
 ### Local Browser Configuration
 
-The S3 bucket to be used is determined by "BUCKET_NAME" key configured in local storage,.
+Example Config:
+
+`{"id", "<unique id>": "<bucket name>", "r": "<region>"}`
+
+See `src/local_config.rs` for additional details.
 
 ### S3 Configuration
 
