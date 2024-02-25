@@ -148,9 +148,15 @@ fn bucket_name_from_url() -> Option<String> {
 }
 
 pub fn get_sites() -> Result<Vec<SiteConfig>, ConfigError> {
-    let result = LocalStorage::get::<String>(SITE_CONFIG)?;
-    let decoded = String::from_utf8(hex::decode(result.clone())?)?;
-    Ok(serde_json::from_str::<Vec<SiteConfig>>(&decoded)?)
+    match LocalStorage::get::<String>(SITE_CONFIG) {
+        Ok(result) => {
+            let decoded = String::from_utf8(hex::decode(result.clone())?)?;
+            Ok(serde_json::from_str::<Vec<SiteConfig>>(&decoded)?)
+        },
+        Err(_err) => {
+            Ok(vec![])
+        }
+    }
 }
 
 pub fn add_site_config(site_config: SiteConfig) -> Result<SiteConfig, ConfigError> {

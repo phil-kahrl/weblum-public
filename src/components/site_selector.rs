@@ -30,7 +30,6 @@ pub fn SiteSelector(
     }
 
     create_effect(move |_| {
-        //log::info!("current site effect");
         match input.get() {
             Some(s) => {
                 match set_current_site(s) {
@@ -42,33 +41,32 @@ pub fn SiteSelector(
         }
     });
 
-        { move || match sites.get().len() > 0 {
-            true => 
-                view!{
-                    <div style="display: flex; flex-direction: row;">
-                        <div style="font-weight: bold; padding: 0 10px 0 10px;">"Current Site"</div>
-                        <select style="font-size: .8em;"
-                            on:change={move |evt| {
-                                let value = event_target_value(&evt);
-                                set_input.set(Some(value));
-                            }}
-                        >
-                            {move || sites.get().into_iter()
-                                .map(|contents|
-                                    view! {
-                                        <option 
-                                            value={contents.clone().id}
-                                            selected = {current_config.get().expect("config expected").id == contents.clone().id}
-                                        >
-                                            {format!("{}", contents.clone().s3_bucket_name())}
-                                        </option>
-                                    }
-                                ).collect::<Vec<_>>()
-                            }
-                        </select>
-                    </div>
-                }.into_view(),
-            false => "".into_view(),
-        }
-    }
+    { move || match sites.get().len() > 0 {
+        true => 
+            view!{
+                <div style="display: flex; flex-direction: row;">
+                    <div style="font-weight: bold; padding: 0 10px 0 10px;">"Current Site"</div>
+                    <select style="font-size: .8em;"
+                        on:change={move |evt| {
+                            let value = event_target_value(&evt);
+                            set_input.set(Some(value));
+                        }}
+                    >
+                        {move || sites.get().into_iter()
+                            .map(|contents|
+                                view! {
+                                    <option 
+                                        value={contents.clone().id}
+                                        selected = {current_config.get().expect("config expected").id == contents.clone().id}
+                                    >
+                                        {format!("{}", contents.clone().s3_bucket_name())}
+                                    </option>
+                                }
+                            ).collect::<Vec<_>>()
+                        }
+                    </select>
+                </div>
+            }.into_view(),
+        false => "".into_view(),      
+    }}
 }

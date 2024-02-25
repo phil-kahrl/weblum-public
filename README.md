@@ -30,7 +30,7 @@ Run locally:
 
 Example Config:
 
-`{"id", "<unique id>": "<bucket name>", "r": "<region>"}`
+`{"id", "<unique id>": "b": "<bucket name>", "r": "<region>"}`
 
 See `src/local_config.rs` for additional details.
 
