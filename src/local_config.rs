@@ -6,6 +6,7 @@ use uuid::Uuid;
 use hex::FromHexError;
 use std::num::TryFromIntError;
 use gloo_storage::errors::StorageError;
+use wasm_bindgen::JsValue;
 
 const SITE_CONFIG: &str = "WM_SITE_CONFIG";
 const CURRENT_SITE: &str = "WM_CURRENT_SITE";
@@ -46,6 +47,12 @@ impl From<StorageError> for ConfigError {
     }
 }
 
+impl From<JsValue> for ConfigError {
+    fn from(_e: JsValue) -> Self {
+        Self::Other
+    }
+}
+
 impl From<std::string::FromUtf8Error> for ConfigError {
     fn from(_e: std::string::FromUtf8Error) -> Self {
         Self::Encoding
@@ -80,6 +87,9 @@ pub struct SiteConfig {
     #[serde(rename(deserialize = "r"))]
     #[serde(rename(serialize = "r"))]
     pub region: String,
+    #[serde(skip_serializing)]
+    #[serde(skip_deserializing)]
+    pub read_only: bool,
 }
 
 impl SiteConfig {
@@ -108,6 +118,7 @@ impl SiteConfig {
             access_key: ak,
             secret_key: sk,
             region,
+            read_only: true,
         }
     }
 
@@ -166,6 +177,58 @@ pub fn add_site_config(site_config: SiteConfig) -> Result<SiteConfig, ConfigErro
     Ok(site_config.clone())
 }
 
+pub trait SingleSiteRuntimeConfig {
+    fn get_current_config() -> Result<SiteConfig, ConfigError>;
+}
+
+pub trait MultiSiteRuntimeConfig {
+    fn set_current_site(&self, site_name: String) -> Result<SiteConfig, ConfigError>;
+    fn remove_site(&self, id: String) -> Result<(), ConfigError>;
+    fn get_sites(&self) -> Result<Vec<SiteConfig>, ConfigError>;
+    fn add_site_config(&self, site_config: SiteConfig) -> Result<SiteConfig, ConfigError>;
+}
+
+pub struct HashRouteRuntimeConfig {
+
+}
+
+impl SingleSiteRuntimeConfig for HashRouteRuntimeConfig {
+    fn get_current_config() -> Result<SiteConfig, ConfigError> {
+        let mut raw = leptos::window().location().hash()?;
+        match raw.len() > 20 {
+            true => {
+                let hash = raw.split_off(1);
+                let config = SiteConfig::from_encoded(hash)?;
+                Ok(config)
+            },
+            false => {
+                Err("hash route insufficient".to_string().into())
+            }
+        }  
+    }
+}
+
+pub struct LocalStorageRuntimeConfig {
+
+}
+
+impl SingleSiteRuntimeConfig for LocalStorageRuntimeConfig {
+    fn get_current_config() -> Result<SiteConfig, ConfigError> {
+        let current_site = LocalStorage::get::<String>(CURRENT_SITE)?;
+        let sites = get_sites()?;
+        if sites.len() > 0 {
+            for site in &sites {
+                if site.id == current_site {
+                    return Ok(site.clone())
+                }
+            }
+            return Ok(sites.get(0).expect("element").clone())
+        } else {
+            Err(ConfigError::SiteNotFound)          
+        }
+    }
+}
+
 pub fn set_current_site(site_name: String) -> Result<SiteConfig, ConfigError> {
     let sites = get_sites()?;
     for site in sites {
@@ -194,22 +257,31 @@ pub fn remove_site(id: String) -> Result<(), ConfigError> {
 }
 
 pub fn get_current_config() -> Result<SiteConfig, ConfigError> {
-    let current_site = LocalStorage::get::<String>(CURRENT_SITE)?;
-    let sites = get_sites()?;
-    if sites.len() > 0 {
-        for site in &sites {
-            if site.id == current_site {
-                return Ok(site.clone())
+    match HashRouteRuntimeConfig::get_current_config() {
+        Err(_e) => {
+            log::info!("loading config from local storage");
+            let current_site = LocalStorage::get::<String>(CURRENT_SITE)?;
+            let sites = get_sites()?;
+            if sites.len() > 0 {
+                for site in &sites {
+                    if site.id == current_site {
+                        return Ok(site.clone())
+                    }
+                }
+                return Ok(sites.get(0).expect("element").clone())
+            } else {          
+                match bucket_name_from_url() {
+                    Some(name) => {
+                        let _ = add_site_config(SiteConfig::new(name.clone(), None, None, "us-west-2".to_string()));
+                        Ok(SiteConfig::new(name, None, None, "us-west-2".to_string()))
+                    },
+                    None =>  Ok(SiteConfig::new("app.weblum.photos".to_string(), None, None, "us-west-2".to_string()))
+                }
             }
-        }
-        return Ok(sites.get(0).expect("element").clone())
-    } else {          
-        match bucket_name_from_url() {
-            Some(name) => {
-                let _ = add_site_config(SiteConfig::new(name.clone(), None, None, "us-west-2".to_string()));
-                Ok(SiteConfig::new(name, None, None, "us-west-2".to_string()))
-            },
-            None =>  Ok(SiteConfig::new("app.weblum.photos".to_string(), None, None, "us-west-2".to_string()))
+        },
+        Ok(config) => {
+            log::info!("loading config from hash route");
+            return Ok(config);
         }
     }
 }

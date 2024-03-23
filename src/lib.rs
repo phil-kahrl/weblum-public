@@ -51,7 +51,6 @@ impl SiteSettings {
     }
 }
 
-
 /**
  * Base64 implementation
  */ 

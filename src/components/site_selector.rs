@@ -41,7 +41,7 @@ pub fn SiteSelector(
         }
     });
 
-    { move || match sites.get().len() > 0 {
+    { move || match sites.get().len() > 0 && !current_config.get().expect("config expected").read_only {
         true => 
             view!{
                 <div style="display: flex; flex-direction: row;">
