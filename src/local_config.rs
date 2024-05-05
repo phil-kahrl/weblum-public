@@ -260,22 +260,34 @@ pub fn get_current_config() -> Result<SiteConfig, ConfigError> {
     match HashRouteRuntimeConfig::get_current_config() {
         Err(_e) => {
             log::info!("loading config from local storage");
-            let current_site = LocalStorage::get::<String>(CURRENT_SITE)?;
-            let sites = get_sites()?;
-            if sites.len() > 0 {
-                for site in &sites {
-                    if site.id == current_site {
-                        return Ok(site.clone())
+            match LocalStorage::get::<String>(CURRENT_SITE) {
+                Err(_e) => {
+                    match bucket_name_from_url() {
+                        Some(name) => {
+                            let _ = add_site_config(SiteConfig::new(name.clone(), None, None, "us-west-2".to_string()));
+                            Ok(SiteConfig::new(name, None, None, "us-west-2".to_string()))
+                        },
+                        None =>  Ok(SiteConfig::new("app.weblum.photos".to_string(), None, None, "us-west-2".to_string()))
                     }
-                }
-                return Ok(sites.get(0).expect("element").clone())
-            } else {          
-                match bucket_name_from_url() {
-                    Some(name) => {
-                        let _ = add_site_config(SiteConfig::new(name.clone(), None, None, "us-west-2".to_string()));
-                        Ok(SiteConfig::new(name, None, None, "us-west-2".to_string()))
-                    },
-                    None =>  Ok(SiteConfig::new("app.weblum.photos".to_string(), None, None, "us-west-2".to_string()))
+                },
+                Ok(current_site) => {
+                    let sites = get_sites()?;
+                    if sites.len() > 0 {
+                        for site in &sites {
+                            if site.id == current_site {
+                                return Ok(site.clone())
+                            }
+                        }
+                        return Ok(sites.get(0).expect("element").clone())
+                    } else {          
+                        match bucket_name_from_url() {
+                            Some(name) => {
+                                let _ = add_site_config(SiteConfig::new(name.clone(), None, None, "us-west-2".to_string()));
+                                Ok(SiteConfig::new(name, None, None, "us-west-2".to_string()))
+                            },
+                            None =>  Ok(SiteConfig::new("app.weblum.photos".to_string(), None, None, "us-west-2".to_string()))
+                        }
+                    }
                 }
             }
         },
