@@ -73,7 +73,7 @@
 
     <script>
         if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("/js/serviceWorker.js").then(
+            navigator.serviceWorker.register("serviceWorker.js", {scope: "/"}).then(
                 (registration) => {
                     console.log("Service worker registration succeeded:", registration);
                 },
@@ -83,15 +83,10 @@
             );
         } else {
             console.error("Service workers are not supported.");
-        }
-        
+        }    
     </script>
-
-
 </head>
-
 <body>
-    
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aws-sdk/2.1472.0/aws-sdk.min.js"></script>

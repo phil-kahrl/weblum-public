@@ -1,0 +1,61 @@
+use gloo_net::http::Request;
+use leptos::*;
+use wasm_bindgen::{JsCast, JsValue};
+use web_sys::{EventTarget, File, HtmlInputElement};
+
+#[component]
+pub fn TestPost() -> impl IntoView {
+    let (file, set_file) = create_signal(Option::<File>::None);
+
+    let upload_image = create_action(move |_: &String| async move {
+        let url = "/js/upload";
+        let _foo = move || file.get();
+        //let builder = Request::post(&url).body(file.get_untracked());
+        let builder = Request::get(&url);
+        builder.send().await;
+        
+        //match builder {
+        //    Ok(req) => {
+        //        match req.send().await {
+        //            Ok(_) => log::info!("request sent"),
+        //            Err(_) => log::info!("Error sending request"),
+        //        }
+        //    },
+        //    Err(_) => log::info!("Error building request"),
+        //}
+    });
+
+
+    create_effect(move |_| {
+        match file.get() {
+            Some(f) => {
+                log::info!("File {}", f.name());
+                upload_image.dispatch("".to_string());
+            },
+            None => (),
+        }
+    });
+
+
+    
+    view!{
+        <div>
+            <h3>Test Post </h3>
+            <input 
+            type="file" 
+            id="fileUpload"
+            on:change=move |ev| {
+                let t = ev.target();
+                let et: EventTarget = t.expect("target");
+                let r: &JsValue = et.as_ref();
+                let file_input = r.clone().dyn_into::<HtmlInputElement>();
+                let files = file_input.expect("file input").files();
+                let file = files.expect("files").item(0).expect("file");
+                set_file.set(Some(file.clone()));
+                //set_default_upload_filename.set(file.name());
+                //update_image_data.dispatch("".to_string());         
+            }
+        />
+        </div>
+    }
+}

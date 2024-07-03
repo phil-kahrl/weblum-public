@@ -17,6 +17,7 @@ pub mod purchase_control;
 pub mod home;
 pub mod loading_indicator;
 pub mod image_list;
+pub mod test_post;
 
 pub use self::{
     image_edit_and_upload::*, 
@@ -38,4 +39,5 @@ pub use self::{
     home::*,
     loading_indicator::*,
     image_list::*,
+    test_post::*
 };
