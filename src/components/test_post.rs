@@ -9,20 +9,8 @@ pub fn TestPost() -> impl IntoView {
 
     let upload_image = create_action(move |_: &String| async move {
         let url = "/js/upload";
-        let _foo = move || file.get();
-        //let builder = Request::post(&url).body(file.get_untracked());
-        let builder = Request::get(&url);
-        builder.send().await;
-        
-        //match builder {
-        //    Ok(req) => {
-        //        match req.send().await {
-        //            Ok(_) => log::info!("request sent"),
-        //            Err(_) => log::info!("Error sending request"),
-        //        }
-        //    },
-        //    Err(_) => log::info!("Error building request"),
-        //}
+        let builder = Request::post(&url).body(file.get_untracked());
+        let _ = builder.expect("request expected").send().await;
     });
 
 

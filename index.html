@@ -83,7 +83,13 @@
             );
         } else {
             console.error("Service workers are not supported.");
-        }    
+        }
+        const channel = new BroadcastChannel("test")
+        channel.onmessage = (e) => {
+            console.log("message received")
+            console.log(e)
+        }
+
     </script>
 </head>
 <body>
