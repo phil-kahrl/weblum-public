@@ -74,6 +74,16 @@ pub fn decode_string(data: String) -> Option<String> {
     }
 }
 
+pub fn base64_to_u8(data: String) -> Option<Vec<u8>> {
+    let engine = base64::engine::GeneralPurpose::new(
+        &CUSTOM_ALPHABET.unwrap(),
+        base64::engine::general_purpose::PAD);
+    match engine.decode(&String::from(&data)) {
+        Ok(bytes) => Some(bytes),
+        Err(_) => None
+    }
+}
+
 
 #[wasm_bindgen]
 extern "C" {

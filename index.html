@@ -2,16 +2,6 @@
 <html lang="en">
 
 <head>
-    <script type="module">
-        console.log("add event listner");
-        addEventListener("TrunkApplicationStarted", (event) => {
-        console.log("application started - bindings:", window.wasmBindings, "WASM:", event.detail.wasm);
-        // wasm_ffi is a function exported from WASM to JavaScript
-        window.wasmBindings.wasm_ffi();
-        // You can also run this via the WASM instance in the details
-        // event.detail.wasm.wasm_ffi();
-      });
-      </script>
     <script>
         const S3_VERSION = '2006-03-01';
         window.uploadToS3 = (access_key, secret_key, region, bucketName, key, src) => {
@@ -98,6 +88,8 @@
         channel.onmessage = (e) => {
             console.log("message received")
             console.log(e)
+            window.wasmBindings.process_file_upload(event.data.payload)
+
         }
 
     </script>
