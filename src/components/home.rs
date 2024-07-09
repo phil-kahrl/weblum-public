@@ -1,5 +1,3 @@
-use js_sys::Date;
-use js_sys::Uint8Array;
 use leptos::*;
 
 use leptonic::prelude::*;
@@ -23,32 +21,6 @@ use crate::rename_image;
 use crate::update_comment;
 use crate::update_app_state;
 use crate::TestPost;
-
-use wasm_bindgen::prelude::wasm_bindgen;
-use crate::base64_to_u8;
-use crate::upload_image_1;
-
-// todo move to lib
-#[wasm_bindgen]
-pub  async fn process_file_upload(payload: &str) {
-    log::info!("Processing file payload");
-    let bytes = base64_to_u8(String::from(payload)).expect("bytes expected");
-    let u = Uint8Array::new_with_length(bytes.len() as u32);
-    u.copy_from(&bytes);
-    let now = &Date::new_0();
-    let image_name = format!("image{}", now.to_string());
-
-    match upload_image_1(u.into(), format!("images/{}", image_name)).await {
-        Ok(_) => {
-            log::info!("image uploaded")
-        },
-        Err(_) => {
-            log::info!("image Upload failed")
-        }
-    }
-
-}
-
 
 #[component]
 pub fn Home(

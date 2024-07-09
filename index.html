@@ -75,7 +75,7 @@
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("serviceWorker.js", {scope: "/"}).then(
                 (registration) => {
-                    console.log("Service worker registration succeeded:", registration);
+                    //
                 },
                 (error) => {
                     console.error(`Service worker registration failed: ${error}`);
@@ -84,11 +84,9 @@
         } else {
             console.error("Service workers are not supported.");
         }
-        const channel = new BroadcastChannel("test")
+        const channel = new BroadcastChannel("file_share")
         channel.onmessage = (e) => {
-            console.log("message received")
-            console.log(e)
-            window.wasmBindings.process_file_upload(event.data.payload)
+            window.wasmBindings.process_file_share(event.data.payload)
 
         }
 
