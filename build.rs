@@ -12,9 +12,4 @@ pub fn main() {
 
     std::fs::create_dir_all(js_dir.clone()).unwrap();
     println!("cargo:warning=js dir created");
-    
-    match std::fs::copy("./serviceWorker.js", "./dist/serviceWorker.js") {
-        Ok(_) => println!("cargo:warning=service worker copied"),
-        Err(_) => println!("cargo:error=error copying service worker"),
-    }
 }

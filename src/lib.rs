@@ -79,14 +79,14 @@ const CUSTOM_ALPHABET: Result<Alphabet, ParseAlphabetError> =
 
 pub fn encode_binary(data: Vec<u8>) -> String {
     let engine = base64::engine::GeneralPurpose::new(
-        &CUSTOM_ALPHABET.unwrap(),
+        &CUSTOM_ALPHABET.expect("customalpha"),
         base64::engine::general_purpose::PAD);
     engine.encode(data)
 }
 
 pub fn decode_string(data: String) -> Option<String> {
     let engine = base64::engine::GeneralPurpose::new(
-        &CUSTOM_ALPHABET.unwrap(),
+        &CUSTOM_ALPHABET.expect("customalpha"),
         base64::engine::general_purpose::PAD);
     match engine.decode(&String::from(&data)) {
         Ok(bytes) => Some(String::from_utf8(bytes).expect("utf8 decodes")),
@@ -96,7 +96,7 @@ pub fn decode_string(data: String) -> Option<String> {
 
 pub fn base64_to_u8(data: String) -> Option<Vec<u8>> {
     let engine = base64::engine::GeneralPurpose::new(
-        &CUSTOM_ALPHABET.unwrap(),
+        &CUSTOM_ALPHABET.expect("customalpha"),
         base64::engine::general_purpose::PAD);
     match engine.decode(&String::from(&data)) {
         Ok(bytes) => Some(bytes),
