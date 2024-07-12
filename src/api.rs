@@ -70,7 +70,6 @@ async fn send_list_request(url: String) -> Result<ListBucketResult> {
 }
 
 pub async fn list_images() -> Result<Vec<S3ObjectInfo>> {
-    log::info!("list images");
     let mut contents: Vec<S3ObjectInfo> = vec![];
     let config = get_current_config()?;
     let bucket = config.s3_bucket_name();

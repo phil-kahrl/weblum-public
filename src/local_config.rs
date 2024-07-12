@@ -259,7 +259,6 @@ pub fn remove_site(id: String) -> Result<(), ConfigError> {
 pub fn get_current_config() -> Result<SiteConfig, ConfigError> {
     match HashRouteRuntimeConfig::get_current_config() {
         Err(_e) => {
-            log::info!("loading config from local storage");
             match LocalStorage::get::<String>(CURRENT_SITE) {
                 Err(_e) => {
                     match bucket_name_from_url() {
