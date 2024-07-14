@@ -20,6 +20,7 @@ use crate::delete_object;
 use crate::rename_image;
 use crate::update_comment;
 use crate::update_app_state;
+use crate::TestPost;
 
 #[component]
 pub fn Home(
@@ -210,6 +211,7 @@ pub fn Home(
       <div class="weblumapp">
         {view!{ 
             <div>
+                <TestPost />
                 {move || match current_config.get() {
                     Some(_) => {
                         view!{

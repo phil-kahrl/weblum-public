@@ -29,21 +29,26 @@ pub fn TestPost() -> impl IntoView {
     view!{
         <div>
             <h3>Test Post </h3>
-            <input 
-            type="file" 
-            id="fileUpload"
-            on:change=move |ev| {
-                let t = ev.target();
-                let et: EventTarget = t.expect("target");
-                let r: &JsValue = et.as_ref();
-                let file_input = r.clone().dyn_into::<HtmlInputElement>();
-                let files = file_input.expect("file input").files();
-                let file = files.expect("files").item(0).expect("file");
-                set_file.set(Some(file.clone()));
-                //set_default_upload_filename.set(file.name());
-                //update_image_data.dispatch("".to_string());         
-            }
-        />
+            <form enctype="multipart/form-data" method="POST" action="/js/upload">
+                <input 
+                    type="file" 
+                    id="jpeg"
+                    name="jpeg"
+                    accept="image/jpeg"
+                    //on:change=move |ev| {
+                        //let t = ev.target();
+                        //let et: EventTarget = t.expect("target");
+                        //let r: &JsValue = et.as_ref();
+                        //let file_input = r.clone().dyn_into::<HtmlInputElement>();
+                        //let files = file_input.expect("file input").files();
+                        //let file = files.expect("files").item(0).expect("file");
+                        //set_file.set(Some(file.clone()));
+                        //set_default_upload_filename.set(file.name());
+                        //update_image_data.dispatch("".to_string());         
+                    //}
+                />
+                <button type="submit">Submit</button>
+            </form>
         </div>
     }
 }
