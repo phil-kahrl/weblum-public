@@ -29,7 +29,7 @@ pub fn TestPost() -> impl IntoView {
     view!{
         <div>
             <h3>Test Post </h3>
-            <form enctype="multipart/form-data" method="POST" action="/js/upload">
+            <form target="_blank" enctype="multipart/form-data" method="POST" action="/">
                 <input 
                     type="file" 
                     id="jpeg"
