@@ -20,7 +20,7 @@ pub fn ConfigList(
     create_effect( move |_| {
         match copied_config.get() {
             Some(config) => {
-                let _ = leptos::window().navigator().clipboard().expect("clipboard exists").write_text(&config.encoded());
+                let _ = leptos::window().navigator().clipboard().write_text(&config.encoded());
             },
         None => ()
         }
