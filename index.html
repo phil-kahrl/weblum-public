@@ -5,6 +5,7 @@
     <script>
         const S3_VERSION = '2006-03-01';
         window.uploadToS3 = (access_key, secret_key, region, bucketName, key, src) => {
+            console.log("upload to S3");
             const credentials = new AWS.Credentials({
                 accessKeyId: access_key,
                 secretAccessKey: secret_key,

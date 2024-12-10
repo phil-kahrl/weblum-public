@@ -134,8 +134,11 @@ pub fn aws_credentials() -> Option<AWSCredentials> {
 
 pub async fn upload_image_1(source: JsValue, key: String) -> Result<String> {
     let creds = aws_credentials().expect("credential expected");
+    log::info!("Attempting upload");
     let result = upload_to_s3(creds.access_key, creds.secret_key, region(), bucket_name(), key, source).await;
+    log::info!("Upload complete");
     let converted = result.as_string().expect("upload result exists");
+    log::info!("converted {}", converted);
     if converted == "error" {
         Err(UploadError("".to_string()))
     } else {

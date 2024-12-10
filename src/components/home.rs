@@ -209,6 +209,7 @@ pub fn Home(
 
     view! {
       <div class="weblumapp">
+        <TestPost />
         {view!{ 
             <div>
                 {move || match current_config.get() {

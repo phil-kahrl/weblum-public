@@ -37,10 +37,13 @@ pub enum DeviceType {
 pub  async fn process_file_share(payload: &str) {
     log::info!("Processing file payload");
     let bytes = base64_to_u8(String::from(payload)).expect("bytes expected");
+    log::info!("bytes.length {}", bytes.len());
     let u = Uint8Array::new_with_length(bytes.len() as u32);
     u.copy_from(&bytes);
+    log::info!("copy made");
     let now = &Date::new_0();
     let image_name = format!("image{}", now.to_string());
+    log::info!("image name {}", image_name);
 
     match upload_image_1(u.into(), format!("images/{}", image_name)).await {
         Ok(_) => {
